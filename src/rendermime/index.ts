@@ -2,7 +2,7 @@
 // Distributed under the terms of the Modified BSD License.
 
 import {
-  IIterable, IterableOrArrayLike
+  IIterable, IterableOrArrayLike, filter
 } from 'phosphor/lib/algorithm/iteration';
 
 import {
@@ -182,6 +182,36 @@ class RenderMime {
   removeRenderer(mimetype: string): void {
     delete this._renderers[mimetype];
     this._order.remove(mimetype);
+  }
+
+  /**
+   * Get an iterator over the ordered list of mimetypes that this rendermime
+   * can render safely.
+   *
+   * @returns {IIterable<string>}
+   *
+   * @memberOf RenderMime
+   */
+  safeMimetypes(): IIterable<string> {
+    return filter(this.mimetypes(), (mt) : boolean => {
+      let r = this._renderers[mt];
+      return r.isSafe(mt);
+    });
+  }
+
+  /**
+   * Get an iterator over the ordered list of mimetypes that this rendermime
+   * can render after sanitizing.
+   *
+   * @returns {IIterable<string>}
+   *
+   * @memberOf RenderMime
+   */
+  sanitizableMimeTypes(): IIterable<string> {
+    return filter(this.mimetypes(), (mt) : boolean => {
+      let r = this._renderers[mt];
+      return r.isSanitizable(mt);
+    });
   }
 
   private _renderers: RenderMime.MimeMap<RenderMime.IRenderer> = Object.create(null);
