@@ -10,12 +10,14 @@ import re
 from concurrent.futures import ThreadPoolExecutor
 
 from notebook.base.handlers import APIHandler
+from notebook.utils import url_path_join as ujoin
 from tornado import gen, web
 
 from .commands import (
     get_app_info, install_extension, uninstall_extension,
     enable_extension, disable_extension, read_package,
-    _AppHandler, get_latest_compatible_package_versions
+    _AppHandler, get_latest_compatible_package_versions,
+    buildsys_check
 )
 
 
@@ -253,5 +255,33 @@ class ExtensionHandler(APIHandler):
             self.finish(json.dumps(ret_value))
 
 
+class BuildSystemCheckHandler(APIHandler):
+
+    @web.authenticated
+    @gen.coroutine
+    def get(self):
+        """GET query returns the availability status of the build system"""
+        try:
+            buildsys_check()
+            self.finish(json.dumps({'status': 'ok'}))
+        except ValueError as e:
+            self.finish(json.dumps({
+                'status': 'error',
+                'message': str(e)
+            }))
+
+
 # The path for lab extensions handler.
 extensions_handler_path = r"/lab/api/extensions"
+buildsys_check_handler_path = r"/lab/api/checkBuildSystem"
+
+
+def create_ext_mgr_handlers(base_url, logger=None, app_dir=None):
+    ext_url = ujoin(base_url, extensions_handler_path)
+    ext_manager = ExtensionManager(logger, app_dir)
+    ext_handler = (ext_url, ExtensionHandler, {'manager': ext_manager})
+
+    check_url = ujoin(base_url, buildsys_check_handler_path)
+    check_handler = (check_url, BuildSystemCheckHandler, {})
+
+    return [ext_handler, check_handler]

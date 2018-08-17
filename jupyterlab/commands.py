@@ -365,6 +365,15 @@ def read_package(target):
     return data
 
 
+def buildsys_check():
+    """Raises a ValueError if there are problems with the build system.
+
+    An example of a problem is a missing dependency like NodeJS, or
+    an incorrect version of node.
+    """
+    _node_check()
+
+
 # ----------------------------------------------------------------------
 # Implementation details
 # ----------------------------------------------------------------------
@@ -1467,7 +1476,10 @@ def _node_check():
         proc = Process(['node', 'node-version-check.js'], cwd=HERE, quiet=True)
         proc.wait()
     except Exception:
-        msg = 'Please install nodejs 5+ and npm before continuing. nodejs may be installed using conda or directly from the nodejs website.'
+        msg = (
+            'Please install nodejs 5+ and npm before continuing. nodejs may '
+            'be installed using conda or directly from the nodejs website.'
+        )
         raise ValueError(msg)
 
 

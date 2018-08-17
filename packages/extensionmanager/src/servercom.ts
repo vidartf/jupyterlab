@@ -66,9 +66,29 @@ export interface IActionReply {
 }
 
 /**
+ * An object representing a server reply to performing an action.
+ */
+export interface IBuildSysStatus {
+  /**
+   * The status category of the reply.
+   */
+  status: 'ok' | 'error';
+
+  /**
+   * An optional message when status is not 'ok'.
+   */
+  message?: string;
+}
+
+/**
  * The server API path for querying/modifying installed extensions.
  */
 const EXTENSION_API_PATH = 'lab/api/extensions';
+
+/**
+ * The server API path for querying/modifying installed extensions.
+ */
+const BUILDSYS_CHECK_API_PATH = 'lab/api/checkBuildSystem';
 
 /**
  * Extension actions that the server API accepts
@@ -126,6 +146,25 @@ export function performAction(
   ).then(response => {
     handleError(response);
     return response.json() as Promise<IActionReply>;
+  });
+}
+
+/**
+ * Query the server about the status of the extension build system.
+ *
+ * @param connectionSettings The connection settings to use for the request.
+ */
+export function checkBuildSystem(
+  connectionSettings: ServerConnection.ISettings
+): Promise<IBuildSysStatus> {
+  const url = new URL(BUILDSYS_CHECK_API_PATH, connectionSettings.baseUrl);
+  return ServerConnection.makeRequest(
+    url.toString(),
+    {},
+    connectionSettings
+  ).then(response => {
+    handleError(response);
+    return response.json() as Promise<IBuildSysStatus>;
   });
 }
 

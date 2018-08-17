@@ -471,7 +471,7 @@ export class ExtensionView extends VDomRenderer<ListModel> {
   /**
    * The search input node.
    */
-  get inputNode(): HTMLInputElement {
+  get inputNode(): HTMLInputElement | undefined {
     return this.node.getElementsByClassName(
       'jp-extensionmanager-input'
     )[0] as HTMLInputElement;
@@ -514,6 +514,21 @@ export class ExtensionView extends VDomRenderer<ListModel> {
           Updating extensions list
         </div>
       );
+    } else if (model.serverRequirementsError) {
+      // Clear out search bar etc:
+      elements = [];
+      content.push(
+        <ErrorMessage key="error-msg">
+          <p>
+            The extension manager detected a problem with the extension build
+            system. Consult the documentation on what requirements are needed to
+            build extensions.
+          </p>
+
+          <p>Details:</p>
+          <pre>{model.serverRequirementsError}</pre>
+        </ErrorMessage>
+      );
     } else if (model.serverConnectionError !== null) {
       content.push(
         <ErrorMessage key="error-msg">
@@ -522,7 +537,7 @@ export class ExtensionView extends VDomRenderer<ListModel> {
             for how to ensure that it is enabled.
           </p>
 
-          <p>Reason given:</p>
+          <p>Details:</p>
           <pre>{model.serverConnectionError}</pre>
         </ErrorMessage>
       );
@@ -552,6 +567,7 @@ export class ExtensionView extends VDomRenderer<ListModel> {
       } else {
         installedContent.push(
           <ListView
+            key="installed-list"
             entries={model.installed}
             numPages={1}
             onPage={value => {
@@ -569,6 +585,7 @@ export class ExtensionView extends VDomRenderer<ListModel> {
           startCollapsed={false}
           headerElements={
             <RefreshButton
+              key="refresh"
               onClick={() => {
                 model.refreshInstalled();
               }}
@@ -591,6 +608,7 @@ export class ExtensionView extends VDomRenderer<ListModel> {
       } else {
         searchContent.push(
           <ListView
+            key="search-list"
             // Filter out installed extensions:
             entries={model.searchResult.filter(
               entry => model.installed.indexOf(entry) === -1
@@ -680,7 +698,7 @@ export class ExtensionView extends VDomRenderer<ListModel> {
   handleEvent(event: Event): void {
     switch (event.type) {
       case 'input':
-        this.onSearch(this.inputNode.value);
+        this.onSearch(this.inputNode!.value);
         break;
       case 'focus':
       case 'blur':
@@ -715,8 +733,10 @@ export class ExtensionView extends VDomRenderer<ListModel> {
   protected onActivateRequest(msg: Message): void {
     if (this.isAttached) {
       let input = this.inputNode;
-      input.focus();
-      input.select();
+      if (input) {
+        input.focus();
+        input.select();
+      }
     }
   }
 

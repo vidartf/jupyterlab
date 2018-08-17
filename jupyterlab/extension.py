@@ -36,9 +36,7 @@ def load_jupyter_server_extension(nbapp):
     from tornado.ioloop import IOLoop
     from markupsafe import Markup
     from .build_handler import build_path, Builder, BuildHandler
-    from .extension_manager_handler import (
-        extensions_handler_path, ExtensionManager, ExtensionHandler
-    )
+    from .extension_manager_handler import create_ext_mgr_handlers
     from .commands import (
         get_app_dir, get_user_settings_dir, watch, ensure_dev, watch_dev,
         pjoin, DEV_DIR, HERE, get_app_info, ensure_core, get_workspaces_dir
@@ -154,10 +152,7 @@ def load_jupyter_server_extension(nbapp):
     handlers = [build_handler]
 
     if not core_mode:
-        ext_url = ujoin(base_url, extensions_handler_path)
-        ext_manager = ExtensionManager(logger, app_dir)
-        ext_handler = (ext_url, ExtensionHandler, {'manager': ext_manager})
-        handlers.append(ext_handler)
+        handlers.extend(create_ext_mgr_handlers(base_url, logger, app_dir))
 
     # Must add before the launcher handlers to avoid shadowing.
     web_app.add_handlers('.*$', handlers)

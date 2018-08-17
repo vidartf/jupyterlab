@@ -22,6 +22,7 @@ import { reportInstallError } from './dialog';
 import { Searcher, ISearchResult, isJupyterOrg } from './query';
 
 import {
+  checkBuildSystem,
   fetchInstalled,
   IActionReply,
   IInstalledEntry,
@@ -109,16 +110,16 @@ export class ListModel extends VDomModel {
   /**
    * Initialize the model.
    */
-  initialize() {
-    this.update()
-      .then(() => {
-        this.initialized = true;
-        this.stateChanged.emit(undefined);
-      })
-      .catch(() => {
-        this.initialized = true;
-        this.stateChanged.emit(undefined);
-      });
+  async initialize() {
+    try {
+      const hasBuildSys = await this._checkBuildSystem();
+      if (hasBuildSys) {
+        await this.update();
+      }
+    } finally {
+      this.initialized = true;
+      this.stateChanged.emit(undefined);
+    }
   }
 
   /**
@@ -515,6 +516,23 @@ export class ListModel extends VDomModel {
 
     // Signal changed state
     this.stateChanged.emit(undefined);
+  }
+
+  private async _checkBuildSystem(): Promise<boolean> {
+    const request = checkBuildSystem(this.serverConnectionSettings);
+    try {
+      const response = await request;
+      this.serverConnectionError = null;
+      if (response.status === 'ok') {
+        this.serverRequirementsError = null;
+      } else {
+        this.serverRequirementsError = response.message!;
+        return false;
+      }
+    } catch (reason) {
+      this.serverConnectionError = reason.toString();
+    }
+    return true;
   }
 
   /**
