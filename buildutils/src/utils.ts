@@ -74,5 +74,5 @@ export function run(
   return childProcess
     .execSync(cmd, options)
     .toString()
-    .replace(/\n$/, '');
+    .trimRight();
 }
