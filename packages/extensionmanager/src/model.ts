@@ -9,6 +9,8 @@ import * as semver from 'semver';
 
 import { doBuild } from './build-helper';
 
+import { IEntry } from './common';
+
 import {
   presentCompanions,
   IKernelInstallInfo,
@@ -19,120 +21,12 @@ import { reportInstallError } from './dialog';
 
 import { Searcher, ISearchResult, isJupyterOrg } from './query';
 
-/**
- * Information about an extension.
- */
-export interface IEntry {
-  /**
-   * The name of the extension.
-   */
-  name: string;
-
-  /**
-   * A short description of the extension.
-   */
-  description: string;
-
-  /**
-   * A representative link of the package.
-   */
-  url: string;
-
-  /**
-   * Whether the extension is currently installed.
-   */
-  installed: boolean;
-
-  /**
-   * Whether the extension is currently enabled.
-   */
-  enabled: boolean;
-
-  /**
-   * A flag indicating the status of an installed extension.
-   */
-  status: 'ok' | 'warning' | 'error' | 'deprecated' | null;
-
-  /**
-   * The latest version of the extension.
-   */
-  latest_version: string;
-
-  /**
-   * The installed version of the extension.
-   */
-  installed_version: string;
-}
-
-/**
- * Wire format for installed extensions.
- */
-export interface IInstalledEntry {
-  /**
-   * The name of the extension.
-   */
-  name: string;
-
-  /**
-   * A short description of the extension.
-   */
-  description: string;
-
-  /**
-   * A representative link of the package.
-   */
-  url: string;
-
-  /**
-   * Whether the extension is currently installed.
-   */
-  installed?: boolean;
-
-  /**
-   * Whether the extension is currently enabled.
-   */
-  enabled: boolean;
-
-  /**
-   * The latest version of the extension.
-   */
-  latest_version: string;
-
-  /**
-   * The installed version of the extension.
-   */
-  installed_version: string;
-
-  /**
-   * A flag indicating the status of an installed extension.
-   */
-  status: 'ok' | 'warning' | 'error' | 'deprecated' | null;
-}
-
-/**
- * An object representing a server reply to performing an action.
- */
-export interface IActionReply {
-  /**
-   * The status category of the reply.
-   */
-  status: 'ok' | 'warning' | 'error' | null;
-
-  /**
-   * An optional message when the status is not 'ok'.
-   */
-  message?: string;
-}
-
-/**
- * The server API path for querying/modifying installed extensions.
- */
-const EXTENSION_API_PATH = 'lab/api/extensions';
-
-/**
- * Extension actions that the server API accepts
- */
-export type Action = 'install' | 'uninstall' | 'enable' | 'disable';
+import {
+  fetchInstalled,
+  IActionReply,
+  IInstalledEntry,
+  performAction
+} from './servercom';
 
 /**
  * Model for an extension list.
@@ -457,21 +351,10 @@ export class ListModel extends VDomModel {
   protected fetchInstalled(
     refreshInstalled = false
   ): Promise<IInstalledEntry[]> {
-    const url = new URL(
-      EXTENSION_API_PATH,
-      this.serverConnectionSettings.baseUrl
-    );
-    if (refreshInstalled) {
-      url.searchParams.append('refresh', '1');
-    }
-    const request = ServerConnection.makeRequest(
-      url.toString(),
-      {},
+    const request = fetchInstalled(
+      refreshInstalled,
       this.serverConnectionSettings
-    ).then(response => {
-      Private.handleError(response);
-      return response.json() as Promise<IInstalledEntry[]>;
-    });
+    );
     request.then(
       () => {
         this.serverConnectionError = null;
@@ -595,29 +478,15 @@ export class ListModel extends VDomModel {
     action: string,
     entry: IEntry
   ): Promise<IActionReply> {
-    const url = new URL(
-      EXTENSION_API_PATH,
-      this.serverConnectionSettings.baseUrl
-    );
-    let request: RequestInit = {
-      method: 'POST',
-      body: JSON.stringify({
-        cmd: action,
-        extension_name: entry.name
-      })
-    };
-    const completed = ServerConnection.makeRequest(
-      url.toString(),
-      request,
+    const completed = performAction(
+      action,
+      entry,
       this.serverConnectionSettings
-    ).then(response => {
-      Private.handleError(response);
-      this.triggerBuildCheck();
-      return response.json() as Promise<IActionReply>;
-    });
+    );
     completed.then(
       () => {
         this.serverConnectionError = null;
+        this.triggerBuildCheck();
       },
       reason => {
         this.serverConnectionError = reason.toString();
@@ -781,17 +650,5 @@ namespace Private {
       }
     }
     return matches;
-  }
-
-  /**
-   * Convert a response to an exception on error.
-   *
-   * @param response The response to inspect.
-   */
-  export function handleError(response: Response): Response {
-    if (!response.ok) {
-      throw new Error(`${response.status} (${response.statusText})`);
-    }
-    return response;
   }
 }

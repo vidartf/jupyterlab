@@ -11,7 +11,11 @@ import * as React from 'react';
 
 import ReactPaginate from 'react-paginate';
 
-import { ListModel, IEntry, Action } from './model';
+import { IEntry } from './common';
+
+import { ListModel } from './model';
+
+import { Action } from './servercom';
 
 import { isJupyterOrg } from './query';
 
