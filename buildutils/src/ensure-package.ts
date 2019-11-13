@@ -8,6 +8,7 @@ import * as glob from 'glob';
 import * as path from 'path';
 import * as prettier from 'prettier';
 import * as ts from 'typescript';
+import { createApiReport } from './api-report';
 import { getDependency } from './get-dependency';
 import * as utils from './utils';
 
@@ -381,6 +382,10 @@ export async function ensurePackage(
   if (utils.writePackageData(path.join(pkgPath, 'package.json'), data)) {
     messages.push('Updated package.json');
   }
+
+  // Create/update API report
+  messages.push(...createApiReport(pkgPath));
+
   return messages;
 }
 

@@ -16,6 +16,8 @@ examples/app/build
 examples/app/themes
 examples/app/schemas
 
+reviews/api/temp
+
 junit.xml
 
 jupyterlab/geckodriver
