@@ -216,8 +216,8 @@ export class Searcher {
   /**
    * Create a Searcher object.
    *
-   * @param repoUri The URI of the NPM registry to use.
-   * @param cdnUri The URI of the CDN to use for fetching full package data.
+   * @param repoUri - The URI of the NPM registry to use.
+   * @param cdnUri - The URI of the CDN to use for fetching full package data.
    */
   constructor(
     repoUri = 'https://registry.npmjs.org/',
@@ -230,9 +230,9 @@ export class Searcher {
   /**
    * Search for a jupyterlab extension.
    *
-   * @param query The query to send. `keywords:"jupyterlab-extension"` will be appended to the query.
-   * @param page The page of results to fetch.
-   * @param pageination The pagination size to use. See registry API documentation for acceptable values.
+   * @param query - The query to send. `keywords:"jupyterlab-extension"` will be appended to the query.
+   * @param page - The page of results to fetch.
+   * @param pageination - The pagination size to use. See registry API documentation for acceptable values.
    */
   searchExtensions(
     query: string,
@@ -256,8 +256,8 @@ export class Searcher {
   /**
    * Fetch package.json of a package
    *
-   * @param name The package name.
-   * @param version The version of the package to fetch.
+   * @param name - The package name.
+   * @param version - The version of the package to fetch.
    */
   fetchPackageData(
     name: string,

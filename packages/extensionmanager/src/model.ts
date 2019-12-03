@@ -312,7 +312,7 @@ export class ListModel extends VDomModel {
   /**
    * Install an extension.
    *
-   * @param entry An entry indicating which extension to install.
+   * @param entry - An entry indicating which extension to install.
    */
   async install(entry: IEntry): Promise<void> {
     if (entry.installed) {
@@ -339,7 +339,7 @@ export class ListModel extends VDomModel {
   /**
    * Uninstall an extension.
    *
-   * @param entry An entry indicating which extension to uninstall.
+   * @param entry - An entry indicating which extension to uninstall.
    */
   async uninstall(entry: IEntry): Promise<void> {
     if (!entry.installed) {
@@ -352,7 +352,7 @@ export class ListModel extends VDomModel {
   /**
    * Enable an extension.
    *
-   * @param entry An entry indicating which extension to enable.
+   * @param entry - An entry indicating which extension to enable.
    */
   async enable(entry: IEntry): Promise<void> {
     if (entry.enabled) {
@@ -365,7 +365,7 @@ export class ListModel extends VDomModel {
   /**
    * Disable an extension.
    *
-   * @param entry An entry indicating which extension to disable.
+   * @param entry - An entry indicating which extension to disable.
    */
   async disable(entry: IEntry): Promise<void> {
     if (!entry.enabled) {
@@ -378,7 +378,7 @@ export class ListModel extends VDomModel {
   /**
    * Check for companion packages in kernels or server.
    *
-   * @param entry An entry indicating which extension to check.
+   * @param entry - An entry indicating which extension to check.
    */
   checkCompanionPackages(entry: IEntry): Promise<boolean> {
     return this.searcher
@@ -464,7 +464,7 @@ export class ListModel extends VDomModel {
    * Translate search results from an npm repository query into entries
    * and remove entries with 'deprecated' in the keyword list
    *
-   * @param res Promise to an npm query result.
+   * @param res - Promise to an npm query result.
    */
   protected async translateSearchResult(
     res: Promise<ISearchResult>
@@ -511,7 +511,7 @@ export class ListModel extends VDomModel {
   /**
    * Translate installed extensions information from the server into entries.
    *
-   * @param res Promise to the server reply data.
+   * @param res - Promise to the server reply data.
    */
   protected async translateInstalled(
     res: Promise<IInstalledEntry[]>
@@ -591,7 +591,7 @@ export class ListModel extends VDomModel {
    *
    * Sets searchError and totalEntries as appropriate.
    *
-   * @returns {Promise<{ [key: string]: IEntry; }>} The search result as a map of entries.
+   * @returns The search result as a map of entries.
    */
   protected async performSearch(): Promise<{ [key: string]: IEntry }> {
     if (this.query === null) {
@@ -623,7 +623,7 @@ export class ListModel extends VDomModel {
    *
    * Sets installedError as appropriate.
    *
-   * @returns {Promise<{ [key: string]: IEntry; }>} A map of installed extensions.
+   * @returns A map of installed extensions.
    */
   protected async queryInstalled(
     refreshInstalled: boolean
@@ -683,8 +683,8 @@ export class ListModel extends VDomModel {
   /**
    * Send a request to the server to perform an action on an extension.
    *
-   * @param action A valid action to perform.
-   * @param entry The extension to perform the action on.
+   * @param action - A valid action to perform.
+   * @param entry - The extension to perform the action on.
    */
   protected _performAction(
     action: string,
@@ -725,7 +725,7 @@ export class ListModel extends VDomModel {
   /**
    * Add a pending action.
    *
-   * @param pending A promise that resolves when the action is completed.
+   * @param pending - A promise that resolves when the action is completed.
    */
   protected _addPendingAction(pending: Promise<any>): void {
     // Add to pending actions collection
@@ -821,7 +821,7 @@ export namespace ListModel {
   /**
    * Utility function to check whether an entry can be updated.
    *
-   * @param entry The entry to check.
+   * @param entry - The entry to check.
    */
   export function entryHasUpdate(entry: IEntry): boolean {
     if (!entry.installed || !entry.latest_version) {
@@ -867,8 +867,8 @@ namespace Private {
   /**
    * Match kernel specs against kernel spec regexps
    *
-   * @param kernelInfo The info containing the regexp patterns
-   * @param specs The available kernel specs.
+   * @param kernelInfo - The info containing the regexp patterns
+   * @param specs - The available kernel specs.
    */
   export function matchSpecs(
     kernelInfo: IKernelInstallInfo,
@@ -906,7 +906,7 @@ namespace Private {
   /**
    * Convert a response to an exception on error.
    *
-   * @param response The response to inspect.
+   * @param response - The response to inspect.
    */
   export function handleError(response: Response): Response {
     if (!response.ok) {

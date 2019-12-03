@@ -27,7 +27,7 @@ export type JupyterFrontEndPlugin<T> = IPlugin<JupyterFrontEnd, T>;
 /**
  * The base Jupyter front-end application class.
  *
- * @typeparam `T` - The `shell` type. Defaults to `JupyterFrontEnd.IShell`.
+ * @typeparam T - The `shell` type. Defaults to `JupyterFrontEnd.IShell`.
  *
  * #### Notes
  * This type is useful as a generic application against which front-end plugins
